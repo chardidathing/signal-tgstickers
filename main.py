@@ -42,7 +42,7 @@ stickers = response.json()['result']['stickers']
 
 # loop through each sticker and convert it
 print(f'Converting {len(stickers)} stickers...')
-for sticker in stickers:
+for i, sticker in enumerate(stickers):
     # download the image
     file_id = sticker['file_id']
     response = requests.get(f'https://api.telegram.org/bot{bot_token}/getFile?file_id={file_id}')
@@ -57,7 +57,7 @@ for sticker in stickers:
     
     # convert the image to the desired formats
     for format in output_formats:
-        output_path = os.path.join(output_dir, f'{sticker["file_unique_id"]}.{format}')
+        output_path = os.path.join(output_dir, f'{i+1}_{sticker["file_unique_id"]}.{format}')
         print(f'Converting {sticker["file_unique_id"]} to {format}...')
         image.save(output_path, format=format)
 
