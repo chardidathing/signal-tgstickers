@@ -52,20 +52,20 @@ for i, sticker in enumerate(stickers):
     response = requests.get(f'https://api.telegram.org/file/bot{bot_token}/{file_path}')
     
     if 'is_animated' in sticker and sticker['is_animated'] or 'is_video' in sticker and sticker['is_video']:
-        # extract frames from the animated WebM
+        # extract frames and frame rate from the animated WebM
         with tempfile.NamedTemporaryFile(suffix='.webm') as f:
             f.write(response.content)
             f.seek(0)
             video_clip = VideoFileClip(f.name)
             frames = video_clip.iter_frames()
             fps = int(video_clip.fps)
-            duration = int(video_clip.duration * fps)
 
         # create the APNG from the frames
         apng_frames = [Image.fromarray(frame) for frame in frames]
         output_path = os.path.join(output_dir, f'{i+1}_{sticker["file_unique_id"]}.apng')
         print(f'Converting {sticker["file_unique_id"]} to APNG...')
-        apng_frames[0].save(output_path, save_all=True, append_images=apng_frames[1:], duration=duration, loop=0)
+        apng_duration = int(1000 / fps)  # duration of each frame in ms
+        apng_frames[0].save(output_path, save_all=True, append_images=apng_frames[1:], duration=apng_duration, loop=0)
 
     else:
         # convert the image to PIL format
