@@ -12,7 +12,7 @@ config.read('config.ini')
 bot_token = config['CONFIG']['bot_token']
 output_dir = config['CONFIG']['output_dir']
 
-# define the desired maximum size for the images
+# define the desired maximum size for the images (shouldn't need to change this if you're using for signal)
 max_size = (512, 512)
 
 # define the desired output formats - png, webp, etc. 
