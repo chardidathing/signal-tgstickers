@@ -3,6 +3,8 @@ from io import BytesIO
 from PIL import Image
 import os
 from configparser import ConfigParser
+from moviepy.editor import VideoFileClip
+import tempfile
 
 # read the configuration file
 config = ConfigParser()
@@ -48,17 +50,36 @@ for i, sticker in enumerate(stickers):
     response = requests.get(f'https://api.telegram.org/bot{bot_token}/getFile?file_id={file_id}')
     file_path = response.json()['result']['file_path']
     response = requests.get(f'https://api.telegram.org/file/bot{bot_token}/{file_path}')
-    image = Image.open(BytesIO(response.content))
     
-    # resize the image if necessary
-    if image.size[0] > max_size[0] or image.size[1] > max_size[1]:
-        print(f'Resizing {sticker["file_unique_id"]}...')
-        image.thumbnail(max_size)
+    if 'is_animated' in sticker and sticker['is_animated'] or 'is_video' in sticker and sticker['is_video']:
+        # extract frames from the animated WebM
+        with tempfile.NamedTemporaryFile(suffix='.webm') as f:
+            f.write(response.content)
+            f.seek(0)
+            video_clip = VideoFileClip(f.name)
+            frames = video_clip.iter_frames()
+            fps = int(video_clip.fps)
+            duration = int(video_clip.duration * fps)
+
+        # create the APNG from the frames
+        apng_frames = [Image.fromarray(frame) for frame in frames]
+        output_path = os.path.join(output_dir, f'{i+1}_{sticker["file_unique_id"]}.apng')
+        print(f'Converting {sticker["file_unique_id"]} to APNG...')
+        apng_frames[0].save(output_path, save_all=True, append_images=apng_frames[1:], duration=duration, loop=0)
+
+    else:
+        # convert the image to PIL format
+        image = Image.open(BytesIO(response.content))
     
-    # convert the image to the desired formats
-    for format in output_formats:
-        output_path = os.path.join(output_dir, f'{i+1}_{sticker["file_unique_id"]}.{format}')
-        print(f'Converting {sticker["file_unique_id"]} to {format}...')
-        image.save(output_path, format=format)
+        # resize the image if necessary
+        if image.size[0] > max_size[0] or image.size[1] > max_size[1]:
+            print(f'Resizing {sticker["file_unique_id"]}...')
+            image.thumbnail(max_size)
+        
+        # convert the image to the desired formats
+        for format in output_formats:
+            output_path = os.path.join(output_dir, f'{i+1}_{sticker["file_unique_id"]}.{format}')
+            print(f'Converting {sticker["file_unique_id"]} to {format}...')
+            image.save(output_path, format=format)
 
 print('Conversion complete!')
