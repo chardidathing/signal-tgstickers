@@ -1,2 +1,7 @@
-# signal-tgstickers
-Small tool to grab and convert a Telegram Sticker pack to be ready to import into Signal Messenger
+# Telegram Sticker Conversion Tool for Signal Messenger
+
+I wanted to pull some of the stickers I use on Telegram and move them into Signal, but didn't want to go through the process of doing it manually, so I took 10x the time in writing a script to do it! Woo,,,,, development.
+
+## Getting Started
+
+***fill out guide***
