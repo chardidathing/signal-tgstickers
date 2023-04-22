@@ -2,3 +2,4 @@
 [CONFIG]
 bot_token = your_bot_token_here
 output_dir = ./out
+; sticker_pack = 'https://t.me/addstickers/StrawMan'

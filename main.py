@@ -20,8 +20,10 @@ max_size = (512, 512)
 output_formats = ['webp']
 
 # prompt the user for the sticker pack name and strip the full url if it exists
-sticker_pack_name = input('Enter the URL/name of the Telegram sticker pack: ')
-sticker_pack_name = sticker_pack_name.replace('https://t.me/addstickers/', '')
+sticker_pack_name = config['CONFIG']['sticker_pack'].strip()
+if not sticker_pack_name:
+    sticker_pack_name = input('Enter the URL/name of the Telegram sticker pack: ')
+    sticker_pack_name = sticker_pack_name.replace('https://t.me/addstickers/', '')
 
 # prompt the user to create the output directory if it doesn't exist
 output_dir = os.path.join(output_dir, sticker_pack_name)
