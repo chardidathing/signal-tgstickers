@@ -23,6 +23,17 @@ output_formats = ['webp']
 sticker_pack_name = input('Enter the URL/name of the Telegram sticker pack: ')
 sticker_pack_name = sticker_pack_name.replace('https://t.me/addstickers/', '')
 
+# prompt the user to create the output directory if it doesn't exist
+output_dir = os.path.join(output_dir, sticker_pack_name)
+if not os.path.exists(output_dir):
+    print(f'The directory {output_dir} does not exist.')
+    create_dir = input(f'Do you want to create the directory {output_dir}? (y/n) ')
+    if create_dir.lower() == 'y':
+        os.makedirs(output_dir)
+    else:
+        print('Aborting conversion...')
+        exit()
+
 # make a request to the telegram bot api to get the sticker pack
 response = requests.get(f'https://api.telegram.org/bot{bot_token}/getStickerSet?name={sticker_pack_name}')
 
