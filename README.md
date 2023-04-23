@@ -1,5 +1,10 @@
 # Telegram Sticker Conversion Tool for Signal *(or for anything else???)*
 
+## READ THIS BEFORE SUBMITTING AN ISSUE!!!
+***As [#3](https://github.com/rainyskye/signal-tgstickers/issues/3) pointed out, There is currently an issue where if the sticker pack has `is_animated` set to true, it's using the `.tgs` format, which for now is unsupported. I'll add in some code for a jank workaround to skip it for now but that is a thing that needs to be fixed. If you have any ideas let me know!***
+
+---
+
 I wanted to pull some of the stickers I use on Telegram and move them into Signal, but didn't want to go through the process of doing it manually, so I took 10x the time in writing a script to do it! Woo,,,,, development.
 
 ## Getting Started

@@ -51,7 +51,7 @@ for i, sticker in enumerate(stickers):
     file_path = response.json()['result']['file_path']
     response = requests.get(f'https://api.telegram.org/file/bot{bot_token}/{file_path}')
     
-    if 'is_animated' in sticker and sticker['is_animated'] or 'is_video' in sticker and sticker['is_video']:
+    if 'is_video' in sticker and sticker['is_video']:
         # extract frames and frame rate from the animated WebM
         with tempfile.NamedTemporaryFile(suffix='.webm') as f:
             f.write(response.content)
@@ -59,6 +59,10 @@ for i, sticker in enumerate(stickers):
             video_clip = VideoFileClip(f.name)
             frames = video_clip.iter_frames()
             fps = int(video_clip.fps)
+
+    elif 'is_animated' in sticker and sticker['is_animated']:
+        print('Sticker Pack appears to be using the .tgs format, support for this is currently in progress.')
+        exit()
 
         # create the APNG from the frames
         apng_frames = [Image.fromarray(frame) for frame in frames]
