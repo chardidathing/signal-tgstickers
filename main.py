@@ -51,7 +51,8 @@ for i, sticker in enumerate(stickers):
     file_path = response.json()['result']['file_path']
     response = requests.get(f'https://api.telegram.org/file/bot{bot_token}/{file_path}')
     
-    if 'is_animated' in sticker and sticker['is_animated'] or 'is_video' in sticker and sticker['is_video']:
+    # is_animated' in sticker and sticker['is_animated'] or 
+    if 'is_video' in sticker and sticker['is_video']:
         # extract frames and frame rate from the animated WebM
         with tempfile.NamedTemporaryFile(suffix='.webm') as f:
             f.write(response.content)
