@@ -3,6 +3,9 @@ from io import BytesIO
 from PIL import Image
 import os
 from configparser import ConfigParser
+
+from lottie.exporters import exporters
+from lottie.importers import importers
 from moviepy.editor import VideoFileClip
 import tempfile
 
@@ -42,6 +45,9 @@ response = requests.get(f'https://api.telegram.org/bot{bot_token}/getStickerSet?
 # parse the response to get the list of stickers
 stickers = response.json()['result']['stickers']
 
+tgs_importer = importers.get_from_extension("tgs")
+webp_exporter = exporters.get_from_extension("webp")
+
 # loop through each sticker and convert it
 print(f'Converting {len(stickers)} stickers...')
 for i, sticker in enumerate(stickers):
@@ -61,15 +67,13 @@ for i, sticker in enumerate(stickers):
             fps = int(video_clip.fps)
 
     elif 'is_animated' in sticker and sticker['is_animated']:
-        print('Sticker Pack appears to be using the .tgs format, support for this is currently in progress.')
-        exit()
-
-        # create the APNG from the frames
-        apng_frames = [Image.fromarray(frame) for frame in frames]
-        output_path = os.path.join(output_dir, f'{i+1}_{sticker["file_unique_id"]}.apng')
-        print(f'Converting {sticker["file_unique_id"]} to APNG...')
-        apng_duration = int(1000 / fps)  # duration of each frame in ms
-        apng_frames[0].save(output_path, save_all=True, append_images=apng_frames[1:], duration=apng_duration, loop=0)
+        with tempfile.NamedTemporaryFile(suffix='.tgs') as f:
+            f.write(response.content)
+            f.flush()
+            output_path = os.path.join(output_dir, f'{i+1}_{sticker["file_unique_id"]}.webp')
+            print(f'Converting {sticker["file_unique_id"]} to webp...')
+            an = tgs_importer.process(f.name)
+            webp_exporter.process(an, output_path)
 
     else:
         # convert the image to PIL format

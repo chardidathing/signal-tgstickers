@@ -3,3 +3,5 @@ pillow
 moviepy
 imageio
 imageio-ffmpeg
+lottie
+CairoSVG
