@@ -3,7 +3,7 @@ from io import BytesIO
 from PIL import Image
 import os
 from configparser import ConfigParser
-from moviepy.editor import VideoFileClip
+from moviepy import VideoFileClip
 import tempfile
 
 # read the configuration file
