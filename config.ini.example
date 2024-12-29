@@ -1,4 +1,0 @@
-; You don't need to specify a subdirectory for the output file, it will automatically be created with the sticker pack name
-[CONFIG]
-bot_token = your_bot_token_here
-output_dir = ./out
