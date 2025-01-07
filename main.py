@@ -32,8 +32,15 @@ class StickerPackDownloader:
                 # Get file path for sticker
                 file = await self.bot.get_file(sticker.file_id)
                 
-                # Determine file extension
-                extension = ".webp" if sticker.is_animated else ".webm" if sticker.is_video else ".webp"
+                # Determine file extension based on sticker type
+                if sticker.is_animated:
+                    extension = ".tgs"  # TODO: handle this
+                    print("Sticker is animated - .tgs support is not implemented yet")
+                elif sticker.is_video:
+                    extension = ".webm"  # Video
+                else:
+                    extension = ".webp"  # Image
+                    
                 output_path = os.path.join(pack_dir, f"sticker_{i}{extension}")
                 
                 # Download the file
