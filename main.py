@@ -3,6 +3,9 @@ from telegram import Bot
 import asyncio
 from typing import Optional
 from dotenv import load_dotenv
+import subprocess
+from pathlib import Path
+import shutil
 
 class StickerPackDownloader:
     def __init__(self, bot_token: str):
@@ -27,32 +30,89 @@ class StickerPackDownloader:
             print(f"Downloading sticker pack: {sticker_set.title}")
             print(f"Total stickers: {len(sticker_set.stickers)}")
             
+            converter = TGSConverter()
+            
             # Download each sticker
             for i, sticker in enumerate(sticker_set.stickers, 1):
-                # Get file path for sticker
                 file = await self.bot.get_file(sticker.file_id)
                 
-                # Determine file extension based on sticker type
                 if sticker.is_animated:
-                    extension = ".tgs"  # TODO: handle this
-                    print("Sticker is animated - .tgs support is not implemented yet")
-                elif sticker.is_video:
-                    extension = ".webm"  # Video
-                else:
-                    extension = ".webp"  # Image
+                    extension = ".tgs"
+                    output_path = os.path.join(pack_dir, f"sticker_{i}{extension}")
+                    await file.download_to_drive(output_path)
                     
-                output_path = os.path.join(pack_dir, f"sticker_{i}{extension}")
+                    # Convert TGS to APNG
+                    try:
+                        apng_path = converter.convert_tgs_to_apng(Path(output_path))
+                        print(f"Converted sticker {i} to APNG: {apng_path}")
+                    except Exception as e:
+                        print(f"Failed to convert sticker {i}: {e}")
+                        
+                else:
+                    # Handle other sticker types as before
+                    extension = ".webm" if sticker.is_video else ".webp"
+                    output_path = os.path.join(pack_dir, f"sticker_{i}{extension}")
+                    await file.download_to_drive(output_path)
                 
-                # Download the file
-                await file.download_to_drive(output_path)
                 print(f"Downloaded sticker {i}/{len(sticker_set.stickers)}")
-                
+
             print(f"Successfully downloaded sticker pack to: {pack_dir}")
             return pack_dir
             
         except Exception as e:
             print(f"Error downloading sticker pack: {e}")
             return None
+
+class TGSConverter:
+    def __init__(self, resolution: int = 256):
+        self.resolution = resolution
+        if not shutil.which('ffmpeg'):
+            raise RuntimeError("ffmpeg is required but not found")
+
+    def convert_tgs_to_apng(self, tgs_file: Path) -> Path:
+        """
+        Convert a .tgs file to .apng format using lottie_convert.py and ffmpeg
+        
+        Args:
+            tgs_file: Path to the .tgs file
+            
+        Returns:
+            Path to the converted .apng file
+        """
+        # Create intermediate gif path
+        gif_path = tgs_file.with_suffix('.gif')
+        apng_path = tgs_file.with_suffix('.apng')
+        
+        try:
+            # Convert TGS to GIF using lottie_convert.py
+            subprocess.run([
+                './python-lottie/bin/lottie_convert.py',
+                str(tgs_file),
+                str(gif_path)
+            ], check=True)
+            
+            # Convert GIF to APNG using ffmpeg
+            subprocess.run([
+                'ffmpeg', '-i', str(gif_path),
+                '-plays', '0',  # Infinite loop
+                '-vf', f'scale={self.resolution}:-1:flags=lanczos',
+                '-f', 'apng',
+                str(apng_path)
+            ], check=True)
+            
+            # Clean up intermediate GIF file
+            gif_path.unlink()
+            
+            return apng_path
+            
+        except subprocess.CalledProcessError as e:
+            print(f"Conversion failed: {e}")
+            # Clean up any intermediate files
+            if gif_path.exists():
+                gif_path.unlink()
+            if apng_path.exists():
+                apng_path.unlink()
+            raise
 
 async def main():
     # Load environment variables

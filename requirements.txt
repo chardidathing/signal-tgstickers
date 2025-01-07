@@ -4,3 +4,4 @@ lottie
 moviepy
 webptools
 requests
+cairosvg
