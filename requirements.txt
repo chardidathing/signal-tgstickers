@@ -1,7 +1,0 @@
-pillow
-telethon
-lottie
-moviepy
-webptools
-requests
-cairosvg
