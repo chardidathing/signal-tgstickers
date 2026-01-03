@@ -3,6 +3,8 @@ packs/
 output/
 .env
 .credentials
+# binary
+signal-tgstickers
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,visualstudiocode,go,windows,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,visualstudiocode,go,windows,linux
